@@ -1,0 +1,74 @@
+﻿<Window x:Class="PointCollectionBugTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PointCollectionBugTest"
+        xmlns:vm="clr-namespace:PointCollectionBugTest.ViewModel"
+        mc:Ignorable="d"
+        
+        xmlns:mouse="clr-namespace:PointCollectionBugTest.Handlers"
+        xmlns:providers="clr-namespace:PointCollectionBugTest.Providers"
+        xmlns:converters="clr-namespace:PointCollectionBugTest.Converters" 
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:penTool="clr-namespace:PointCollectionBugTest.Model"
+        WindowStyle="None"
+        ResizeMode="NoResize" 
+        WindowStartupLocation="Manual"
+        Title="MainWindow" Height="1080" Width="1920" Top="0" Left="0">
+
+    <Window.DataContext>
+        <vm:MainWindowViewModel></vm:MainWindowViewModel>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <converters:PolylinePointsConverter x:Key="PolylinePointsConverter"></converters:PolylinePointsConverter>
+    </Window.Resources>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="MouseDown">
+            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding CanvasMouseDownCommand}"/>
+        </i:EventTrigger>
+
+        <i:EventTrigger EventName="MouseMove">
+            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding CanvasMouseMoveCommand}"/>
+        </i:EventTrigger>
+
+        <i:EventTrigger EventName="MouseUp">
+            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding CanvasMouseUpCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
+    <Grid>
+        <Canvas x:Name="WorkArea">
+
+            <i:Interaction.Behaviors>
+                <mouse:MouseBehaviour MouseX="{Binding Source={x:Static providers:HandlersProvider.MouseHandler}, Path=MouseX, Mode=OneWayToSource}"
+                                       MouseY="{Binding Source={x:Static providers:HandlersProvider.MouseHandler}, Path=MouseY, Mode=OneWayToSource}" />
+            </i:Interaction.Behaviors>
+            <Canvas.Background>
+                <ImageBrush>
+
+                </ImageBrush>
+            </Canvas.Background>
+            <Button Canvas.Left="30" Canvas.Top="50" Command="{Binding CloseAppCommand}">
+                Close
+            </Button>
+
+            <ItemsControl ItemsSource="{Binding Tools}">
+                <ItemsControl.Resources>
+                    <DataTemplate DataType="{x:Type penTool:Pen}">
+                        <Canvas>
+                            <Polyline Points="{Binding Points, Converter={StaticResource PolylinePointsConverter}}" 
+                                      Stroke="Red"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeDashCap="Round"
+                                      StrokeThickness="3px"/>
+                        </Canvas>
+                    </DataTemplate>
+                </ItemsControl.Resources>
+            </ItemsControl>
+        </Canvas>
+    </Grid>
+</Window>
